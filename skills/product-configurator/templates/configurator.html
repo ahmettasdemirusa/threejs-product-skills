@@ -1,0 +1,229 @@
+<!doctype html>
+<!--
+  Three.js product configurator: starter template.
+  From the threejs-product-skills repo · MIT License · Ahmet Tasdemir
+
+  Options change materials by name, so the 3D artist and the developer only have
+  to agree on material names ("Glaze", "Band"). The choice is kept in the URL
+  (shareable), the price updates, and every change is announced to screen readers.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Product configurator</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #f4f5f7; font-family: system-ui, sans-serif; color: #15171c; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; height: 100%; }
+  .viewer { position: relative; min-height: 360px; }
+  .viewer canvas { display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
+  .status { position: absolute; left: 0; right: 0; bottom: 16px; text-align: center; font-size: 13px; color: #555; }
+  aside { background: #fff; border-left: 1px solid #e3e6eb; padding: 24px; overflow: auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .price { font-size: 20px; font-weight: 700; margin: 0 0 22px; }
+  fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+  legend { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: #5d6573; margin-bottom: 10px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 10px; }
+  .opts button { display: flex; align-items: center; gap: 8px; border: 1px solid #d7dbe1; background: #fff; border-radius: 999px;
+    padding: 6px 12px 6px 6px; font: inherit; font-size: 14px; cursor: pointer; }
+  .opts button[aria-pressed="true"] { border-color: #15171c; box-shadow: 0 0 0 1px #15171c; }
+  .sw { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+  .extra { color: #5d6573; font-size: 12px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 760px) {
+    .layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(240px, 55vh) auto; height: auto; min-height: 100%; }
+    .viewer { min-height: 0; }
+    aside { border-left: 0; border-top: 1px solid #e3e6eb; }
+  }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div class="layout">
+  <div class="viewer" id="viewer"><div class="status" id="status">Loading 3D model…</div></div>
+  <aside>
+    <h1>Ceramic Mug</h1>
+    <p class="price" id="price">$18.00</p>
+    <form id="options"></form>
+    <p class="sr-only" aria-live="polite" id="announce"></p>
+  </aside>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const MODEL_URL = new URLSearchParams(location.search).get('model') || '../../../assets/mug-optimized.glb';
+const BASE_PRICE = 18;
+
+// Each option targets a material by name in the glTF file.
+const OPTIONS = [
+  { id: 'glaze', label: 'Glaze', material: 'Glaze', choices: [
+    { id: 'tomato', label: 'Tomato', color: '#e4572e' },
+    { id: 'ocean', label: 'Ocean', color: '#2e86ab' },
+    { id: 'forest', label: 'Forest', color: '#3a7d44' },
+    { id: 'charcoal', label: 'Charcoal', color: '#2f3136' },
+  ] },
+  { id: 'band', label: 'Band', material: 'Band', choices: [
+    { id: 'cream', label: 'Cream', color: '#f7f3ea' },
+    { id: 'black', label: 'Black', color: '#1d1d1f' },
+    { id: 'gold', label: 'Gold', color: '#e8c15a', metalness: 1, roughness: 0.3, price: 4 },
+  ] },
+];
+
+// --- viewer (same setup as the product-viewer template) ------------------------------
+const container = document.getElementById('viewer');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.domElement.setAttribute('role', 'img');
+renderer.domElement.setAttribute('aria-label', 'Ceramic mug, interactive 3D view');
+container.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.maxPolarAngle = Math.PI * 0.49;
+
+const key = new THREE.DirectionalLight(0xffffff, 1.2);
+key.castShadow = true;
+key.shadow.mapSize.set(1024, 1024);
+key.shadow.radius = 4;
+scene.add(key);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({ opacity: 0.18 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+let needsRender = true;
+const requestRender = () => { needsRender = true; };
+renderer.setAnimationLoop(() => {
+  if (controls.update() || needsRender) { renderer.render(scene, camera); needsRender = false; }
+});
+new ResizeObserver(() => {
+  const { clientWidth: w, clientHeight: h } = container;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  requestRender();
+}).observe(container);
+
+// --- configurator state ------------------------------------------------------------------
+const params = new URLSearchParams(location.search);
+const state = Object.fromEntries(OPTIONS.map((o) => {
+  const wanted = params.get(o.id);
+  return [o.id, o.choices.some((c) => c.id === wanted) ? wanted : o.choices[0].id];
+}));
+const materials = new Map(); // material name -> Set of THREE.Material
+
+function choice(option) { return option.choices.find((c) => c.id === state[option.id]); }
+
+function apply() {
+  let price = BASE_PRICE;
+  for (const o of OPTIONS) {
+    const c = choice(o);
+    price += c.price || 0;
+    for (const m of materials.get(o.material) || []) {
+      m.color.set(c.color);
+      if ('metalness' in m) m.metalness = c.metalness ?? 0;
+      if ('roughness' in m) m.roughness = c.roughness ?? 0.3;
+    }
+  }
+  document.getElementById('price').textContent = '$' + price.toFixed(2);
+  const url = new URL(location.href);
+  OPTIONS.forEach((o) => url.searchParams.set(o.id, state[o.id]));
+  history.replaceState(null, '', url);
+  requestRender();
+}
+
+function buildForm() {
+  const form = document.getElementById('options');
+  for (const o of OPTIONS) {
+    const fs = document.createElement('fieldset');
+    fs.innerHTML = `<legend>${o.label}</legend><div class="opts"></div>`;
+    for (const c of o.choices) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.option = o.id;
+      b.dataset.choice = c.id;
+      b.setAttribute('aria-pressed', String(state[o.id] === c.id));
+      b.innerHTML = `<span class="sw" style="background:${c.color}"></span>${c.label}` +
+        (c.price ? ` <span class="extra">+$${c.price}</span>` : '');
+      b.addEventListener('click', () => {
+        state[o.id] = c.id;
+        fs.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        document.getElementById('announce').textContent = `${o.label}: ${c.label}`;
+        apply();
+      });
+      fs.querySelector('.opts').appendChild(b);
+    }
+    form.appendChild(fs);
+  }
+}
+
+buildForm();
+
+// Optimized models use Meshopt compression (see the 3d-asset-optimization skill).
+new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(MODEL_URL, (gltf) => {
+  const model = gltf.scene;
+  model.traverse((obj) => {
+    if (!obj.isMesh) return;
+    obj.castShadow = obj.receiveShadow = true;
+    for (const m of [].concat(obj.material)) {
+      if (!materials.has(m.name)) materials.set(m.name, new Set());
+      materials.get(m.name).add(m);
+    }
+  });
+  const missing = OPTIONS.filter((o) => !materials.has(o.material)).map((o) => o.material);
+  if (missing.length) console.warn('Configurator: no material named', missing.join(', '));
+  scene.add(model);
+  frame(model);
+  apply();
+  document.getElementById('status').remove();
+}, undefined, (err) => {
+  console.error(err);
+  document.getElementById('status').textContent = 'Sorry, the 3D model could not be loaded.';
+});
+
+function frame(model) {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  model.position.set(-center.x, -box.min.y, -center.z);
+  const radius = size.length() / 2;
+  const distance = (radius / Math.sin(THREE.MathUtils.degToRad(camera.fov) / 2)) * 1.1;
+  controls.target.set(0, size.y / 2, 0);
+  camera.position.set(distance * 0.55, size.y / 2 + distance * 0.35, distance * 0.75);
+  camera.near = distance / 100;
+  camera.far = distance * 100;
+  camera.updateProjectionMatrix();
+  controls.minDistance = distance * 0.5;
+  controls.maxDistance = distance * 2.5;
+  ground.scale.setScalar(radius * 6);
+  key.position.set(radius * 2, radius * 4, radius * 3);
+  const s = key.shadow.camera;
+  s.left = s.bottom = -radius * 2;
+  s.right = s.top = radius * 2;
+  s.near = 0.01;
+  s.far = radius * 12;
+  s.updateProjectionMatrix();
+  controls.update();
+}
+</script>
+</body>
+</html>

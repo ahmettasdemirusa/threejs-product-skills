@@ -1,0 +1,11 @@
+{
+  "name": "threejs-product-skills",
+  "version": "1.0.0",
+  "description": "Agent skills for 3D product pages with three.js: product viewer, configurator, 3D asset optimization, <model-viewer> AR and 360° spins. Tested templates with current three.js APIs.",
+  "author": { "name": "Ahmet Tasdemir", "url": "https://github.com/ahmettasdemirusa" },
+  "homepage": "https://ahmettasdemirusa.github.io/threejs-product-skills/",
+  "repository": "https://github.com/ahmettasdemirusa/threejs-product-skills",
+  "license": "MIT",
+  "keywords": ["threejs", "three.js", "3d", "webgl", "gltf", "product-viewer", "product-configurator", "model-viewer", "ar", "360-viewer", "ecommerce"],
+  "skills": "./skills"
+}

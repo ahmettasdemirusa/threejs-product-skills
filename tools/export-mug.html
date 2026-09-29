@@ -1,0 +1,66 @@
+<!doctype html>
+<!--
+  Builds the demo mug (the same product as the Spin360 demo) and exports it as a
+  binary glTF (.glb) with named meshes and materials, for the templates in this repo.
+  Run: python tools/export_mug.py
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<pre id="out"></pre>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+const mug = new THREE.Group();
+mug.name = 'Mug';
+
+const glaze = new THREE.MeshPhysicalMaterial({ name: 'Glaze', color: '#e4572e', roughness: 0.28, clearcoat: 0.8, clearcoatRoughness: 0.15 });
+const interior = new THREE.MeshStandardMaterial({ name: 'Interior', color: '#f7f3ea', roughness: 0.35, side: THREE.DoubleSide });
+const clay = new THREE.MeshStandardMaterial({ name: 'Clay', color: '#d9cbb3', roughness: 0.9 });
+const band = new THREE.MeshPhysicalMaterial({ name: 'Band', color: '#f7f3ea', roughness: 0.3, clearcoat: 0.6 });
+
+const add = (name, geometry, material, setup) => {
+  const m = new THREE.Mesh(geometry, material);
+  m.name = name;
+  if (setup) setup(m);
+  mug.add(m);
+  return m;
+};
+const lathe = (pts, seg = 64) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), seg);
+
+// Units: 1 = 4.5 cm, so the mug is about 9.5 cm tall once scaled below.
+add('Body', lathe([[0, 0.02], [0.92, 0.02], [0.98, 0.1], [1.0, 0.3], [1.02, 1.6], [1.04, 2.1], [1.0, 2.14]]), glaze);
+add('Interior', lathe([[0.0, 0.2], [0.86, 0.2], [0.92, 0.4], [0.94, 2.12]]), interior);
+add('Rim', new THREE.TorusGeometry(0.97, 0.035, 12, 64), interior, (m) => { m.rotation.x = Math.PI / 2; m.position.y = 2.13; });
+add('Foot', new THREE.CylinderGeometry(0.9, 0.88, 0.04, 64), clay, (m) => { m.position.y = 0.02; });
+add('Band', new THREE.CylinderGeometry(1.035, 1.03, 0.16, 64, 1, true), band, (m) => { m.position.y = 1.55; });
+add('Badge', new THREE.BoxGeometry(0.46, 0.46, 0.06), band, (m) => { m.position.set(0, 0.95, 1.03); });
+add('BadgeDot', new THREE.CircleGeometry(0.13, 32), glaze, (m) => { m.position.set(0, 0.95, 1.062); });
+add('Handle', new THREE.TorusGeometry(0.55, 0.12, 16, 48, Math.PI * 1.25), glaze, (m) => {
+  m.rotation.z = -Math.PI * 0.625; m.position.set(1.02, 1.1, 0);
+});
+
+mug.scale.setScalar(0.045); // real-world size in metres (glTF units)
+
+const scene = new THREE.Scene();
+scene.add(mug);
+
+new GLTFExporter().parse(scene, (glb) => {
+  const bytes = new Uint8Array(glb);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  // "@" never occurs in base64, so these markers can't collide with the data.
+  document.getElementById('out').textContent = '@@GLB@@' + btoa(bin) + '@@END@@';
+}, (err) => { document.getElementById('out').textContent = 'ERROR ' + err; }, { binary: true });
+</script>
+</body>
+</html>

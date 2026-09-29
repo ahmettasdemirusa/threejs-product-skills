@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Three.js Product Skills: 3D product viewers, configurators and 360° spins for AI agents</title>
+  <meta name="description" content="Agent skills that teach Claude Code, Codex and other AI coding agents to build 3D product viewers, configurators, AR embeds and 360° spins with three.js, with tested templates.">
+  <meta property="og:title" content="Three.js Product Skills">
+  <meta property="og:description" content="Teach AI coding agents to build 3D product viewers, configurators and 360° spins. Tested templates included.">
+  <meta property="og:image" content="https://ahmettasdemirusa.github.io/threejs-product-skills/docs/social-preview.png">
+  <meta property="og:url" content="https://ahmettasdemirusa.github.io/threejs-product-skills/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ahmettasdemirusa.github.io/threejs-product-skills/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%8A%3C/text%3E%3C/svg%3E">
+  <script type="module" src="https://cdn.jsdelivr.net/gh/ahmettasdemirusa/spin360@v1.0.0/spin360.js"></script>
+  <style>
+    :root { --bg:#0d1117; --panel:#161b22; --text:#e6edf3; --muted:#9aa4b2; --line:#2b323c; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    a { color: var(--accent); }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+    header { padding: 36px 0 10px; }
+    h1 { font-size: clamp(30px, 4.6vw, 50px); line-height: 1.08; margin: 0 0 12px; letter-spacing: -.02em; }
+    .lede { color: var(--muted); font-size: 18px; max-width: 760px; margin: 0 0 20px; }
+    .cta a { display:inline-block; margin: 0 10px 10px 0; padding: 10px 16px; border-radius: 10px; text-decoration:none; font-weight:700; }
+    .cta .primary { background: var(--accent); color: #0d1117; }
+    .cta .ghost { border: 1px solid var(--line); color: var(--text); }
+    .demos { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 26px 0; }
+    .demo { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display:flex; flex-direction:column; }
+    .demo .stage { background:#f4f5f7; height: 400px; }
+    .demo iframe { width: 100%; height: 100%; border: 0; display:block; }
+    .demo spin-360 { height: 100%; aspect-ratio: auto; }
+    .demo .cap { padding: 14px 16px; }
+    .demo b { display:block; }
+    .demo small { color: var(--muted); }
+    .note { color: var(--muted); font-size: 14px; }
+    table { width:100%; border-collapse: collapse; background: var(--panel); border-radius: 12px; overflow: hidden; }
+    th, td { text-align:left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
+    code, pre { font-family: ui-monospace, Consolas, monospace; }
+    pre { background:#0a0d12; border:1px solid var(--line); border-radius: 12px; padding: 16px; overflow:auto; }
+    section { padding: 24px 0; border-top: 1px solid var(--line); }
+    .series { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .series a { display:block; text-decoration:none; color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; }
+    .series a:hover { border-color: var(--accent); }
+    .series small { color: var(--muted); display:block; }
+    footer { color: var(--muted); font-size: 14px; padding: 26px 0 50px; border-top: 1px solid var(--line); }
+    @media (max-width: 900px) { .demos, .series { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧊 Three.js Product Skills</h1>
+    <p class="lede">Agent skills that teach Claude Code, Codex and other AI coding agents to build <b>3D product viewers, configurators, AR embeds and 360° spins</b>, with tested templates, current three.js APIs and real performance budgets.</p>
+    <div class="cta">
+      <a class="primary" href="https://github.com/ahmettasdemirusa/threejs-product-skills">★ View on GitHub</a>
+      <a class="ghost" href="#install">Install the skills</a>
+    </div>
+  </header>
+
+  <div class="demos">
+    <div class="demo">
+      <div class="stage"><iframe src="skills/threejs-product-viewer/templates/product-viewer.html" title="3D product viewer template" loading="lazy"></iframe></div>
+      <div class="cap"><b>Product viewer</b><small>Drag to orbit, scroll or pinch to zoom. <a href="skills/threejs-product-viewer/templates/product-viewer.html">Open the template ↗</a></small></div>
+    </div>
+    <div class="demo">
+      <div class="stage"><iframe src="skills/product-configurator/templates/configurator.html?glaze=ocean&band=gold" title="3D product configurator template" loading="lazy"></iframe></div>
+      <div class="cap"><b>Configurator</b><small>Colors by material name; the state goes in the URL. <a href="skills/product-configurator/templates/configurator.html">Open full screen ↗</a></small></div>
+    </div>
+    <div class="demo">
+      <div class="stage"><spin-360 src="https://ahmettasdemirusa.github.io/spin360/demo/frames/forest/{i}.webp" frames="36" pad="2" autoplay speed="10" alt="Ceramic mug, 360° view"></spin-360></div>
+      <div class="cap"><b>360° spin</b><small>The same mug as a 36-frame image sequence in <a href="https://github.com/ahmettasdemirusa/spin360">Spin360</a>.</small></div>
+    </div>
+  </div>
+  <p class="note">All three demos show the same product. The model is <code>assets/mug-optimized.glb</code> (31 KB after glTF-Transform), exported from three.js by <code>tools/export_mug.py</code>.</p>
+
+  <section>
+    <h2>The skills</h2>
+    <table>
+      <tr><th>Skill</th><th>What your agent learns</th></tr>
+      <tr><td><code>threejs-product-viewer</code></td><td>Load a GLB, auto-frame any model, studio lighting, contact shadow, orbit limits, render on demand, cleanup and budgets</td></tr>
+      <tr><td><code>product-configurator</code></td><td>Colors, finishes, textures, parts and KHR_materials_variants; URL state, pricing, accessible option UI</td></tr>
+      <tr><td><code>3d-asset-optimization</code></td><td>glTF-Transform: Meshopt vs Draco, KTX2 vs WebP, budgets, and the flags that silently break configurators</td></tr>
+      <tr><td><code>model-viewer-ar</code></td><td>&lt;model-viewer&gt; embeds with AR on Android and iOS, true-scale checks, variants, custom AR button</td></tr>
+      <tr><td><code>360-product-spin</code></td><td>When to use a spin, how to photograph or render the frames, and embedding with Spin360</td></tr>
+    </table>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+<pre>/plugin marketplace add ahmettasdemirusa/threejs-product-skills
+/plugin install threejs-product-skills@threejs-product-skills</pre>
+    <p class="note">In Claude Code. For other agents, copy the <code>skills/</code> folders; they use the open Agent Skills (<code>SKILL.md</code>) format.</p>
+  </section>
+
+  <section>
+    <h2>3D Web series</h2>
+    <div class="series">
+      <a href="https://github.com/ahmettasdemirusa/spin360"><b>🔄 Spin360</b><small>Zero-dependency 360° product viewer web component</small></a>
+      <a href="https://github.com/ahmettasdemirusa/threejs-product-skills"><b>🧊 Three.js Product Skills</b><small>Agent skills for 3D product pages. You are here.</small></a>
+      <a href="https://github.com/ahmettasdemirusa/awesome-3d-web"><b>🌐 Awesome 3D Web</b><small>A curated list of libraries, tools and resources for 3D on the web</small></a>
+    </div>
+  </section>
+
+  <footer>MIT License · Built by <a href="https://github.com/ahmettasdemirusa">Ahmet Tasdemir</a> · <a href="https://ahmettasdemir.com">ahmettasdemir.com</a></footer>
+</div>
+</body>
+</html>
