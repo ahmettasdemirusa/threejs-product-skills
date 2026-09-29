@@ -121,4 +121,6 @@ If these skills help your agent, a ⭐ helps other people find them.
 
 Built by **[Ahmet Tasdemir](https://github.com/ahmettasdemirusa)**, software engineer · [ahmettasdemir.com](https://ahmettasdemir.com)
 
+More open source: 📍 [Local SEO toolkit](https://github.com/ahmettasdemirusa/local-seo-skills) · 🧊 [3D Web series](https://github.com/ahmettasdemirusa/spin360) · [all projects](https://github.com/ahmettasdemirusa)
+
 </div>
